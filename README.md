@@ -10,9 +10,9 @@ Maintainability. Scalability. Those are convenient terms to keep in mind while y
 
 Anyhow, as long as you got experience, you also realize that there are other as you and they are willing to beat some battles. So they get ready by developing the latest powerful "weapons". But now, You must work out with them, so that you can get advantage of them.
 
-### Divide and conquer 
+### Divide and conquer
 
-One of the things that most naturally leads to both maintainable and scalable system is _decouple_. If your designs enforce such a strategy, they will evolve _naturally_ with no much pain whenever new features are to be added.  
+One of the things that most naturally leads to both maintainable and scalable system is _decouple_. If your designs enforce such a strategy, they will evolve _naturally_ with no much pain whenever new features are to be added.
 
 It should be easier to follow this approach by having a way to do it descriptively:
 
@@ -45,19 +45,19 @@ std::unique_ptr<Parser> make_parser(MessageType type)
 void processMessage(RawMessage msg, Context& ctx)
 {
     auto parser_ptr = make_parser( findOutType( msg ) );
-    parser_ptr->inspect(msg, ctx);   
+    parser_ptr->inspect(msg, ctx);
 }
 ```
 Although perfectly fine from maintainability perspective, it might not be so convenient from performance perspective in some cases as dynamic type resolution is required at runtime (__Note__: _it is strongly recomended that you make some measurements so that you can assure there is a bottle neck or unacceptable degradation due to virtual function calls_).
 
 In cases where there are indeed an good reason to avoid virtual function calls, there is another approach to keep such _polymorphic behavior_ without performance penalty.
 
-And that is basically the idea behave _Taskit_.  
+And that is basically the idea behind _Taskit_.
 
 Design
 --------------
 
-Imagine we have to parser a data packet having this format:
+Imagine we have to parse a data packet having this format:
 
 ```
 ------------------------------------------------
@@ -138,7 +138,7 @@ void processMessage(RawMessage msg, Context& ctx)
 {
     int ret = 0;
     auto parser_ptr = make_parser( findOutType( msg ) );
-    if( parser_ptr ) ret = parser_ptr->inspect(msg, ctx);   
+    if( parser_ptr ) ret = parser_ptr->inspect(msg, ctx);
     return ret;
 }
 ```
@@ -150,7 +150,7 @@ When can skip this problem easily by using preallocated instances:
 ``` cpp
 Parser* make_parser(MessageType type)
 {
-    static std::vector<Parser> parsers = { A{}, B{}, C{} };
+    static std::vector<Parser> parsers{ A{}, B{}, C{} };
 
     switch( type ) {
         case 'A': return &parsers[0];
@@ -160,9 +160,9 @@ Parser* make_parser(MessageType type)
     }
 }
 ```
-Unfortunatelly, that only avoid heap requests but no virtual calls (In fact, another considerations might arise, but let them out of this discussion to keep focus in the main problem). 
+Unfortunatelly, that only avoid heap requests but no virtual calls (In fact, another considerations might arise, but let them out of this discussion to keep focus in the main problem).
 
-But, we have to consider how straightforward is to parser new future formats:
+But we should consider how straightforward is to parse new future formats:
 
 ``` cpp
 class D : public Parser
@@ -187,7 +187,7 @@ public:
 
 Parser* make_parser(MessageType type)
 {
-    static std::vector<Parser> parsers = { A{}, B{}, C{}, D{}, E{} };
+    static std::vector<Parser> parsers{ A{}, B{}, C{}, D{}, E{} };
 
     switch( type ) {
         case 'A': return &parsers[0];
@@ -199,7 +199,7 @@ Parser* make_parser(MessageType type)
     }
 }
 ```
-How can we overcome the virtual call problem without missing out our convenient design structure? The answer is generic programing a variadit templates.
+How can we overcome the virtual call problem without missing out our convenient design structure? The answer is generic programing a variadic templates.
 
 We can generate an _if-else_ structure at compile time to be checked at runtime.
 
@@ -279,7 +279,7 @@ Parser make_parser(MessageType type)
 void processMessage(RawMessage msg, Context& ctx)
 {
     auto parser = make_parser( findOutType( msg ) );
-    return parser(msg, ctx);   
+    return parser(msg, ctx);
 }
 ```
 And that's the idea ;-)
@@ -294,7 +294,7 @@ You also need boost_unit_test_framework library to run UT.
 Usage
 -----
 
-You can define task...
+You can define task selectors...
 
 ``` cpp
 Parser make_parser(MessageType type)
@@ -377,8 +377,8 @@ As tasks are actually functors, they can be used into packed_task object too:
                                    );
 
     Ctx ctx;
-    std::packaged_task<char(std::ostream&, Ctx&)> task( std::bind(parser, std::ref(res), std::ref(ctx)) );
-    std::future<char> result = task.get_future();
+    std::packaged_task<int(RawMessage, Ctx&)> task( std::bind(parser, msg, std::ref(ctx)) );
+    std::future<int> result = task.get_future();
 
     task(res, ctx);
 
