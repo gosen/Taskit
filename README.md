@@ -23,13 +23,13 @@ void process(const std::string& data, std::string& normalizeData)
     normalizer(data, normalizeData);
 }
 ```
-The point is that by splitting your tasks in a well defined way, you will, sooner than later, realize that code reusing is pretty obvious as source code understandability is improved. Soyour test cases do, which leads to a better tested software at the end.
+The point is that by splitting your tasks in a well defined way, you will, sooner than later, realize that code reusing is pretty obvious and source code understandability is improved. So your test cases do, which leads to a better tested software at the end.
 
-To get all these things just depend on your design decisions. Believe or not, they have nothing to do with your WoW organization and how many check-point meetings you attend.
+To get all these things just depends on your design decisions. Believe it or not, they have nothing to do with your WoW organization and how many check-point meetings you attend.
 
 ### Target
 
-You already has a lot of instruments to address your designs. This just has been the result of trying to improve a particular problem; protocol parsing. As I have explained above, complex systems live time depend on how well-structured is your architecture and well-adapted to future changes. To fulfill that, the use of object factories used to be a good approach.
+You already has a lot of instruments to address your designs. This just has been the result of trying to improve a particular problem; protocol parsing. As I have explained above, complex-systems-live-time depend on how well-structured are their architecture and well-adapted to future changes. To fulfill that, object factories used to be a good approach.
 
 ``` cpp
 std::unique_ptr<Parser> make_parser(MessageType type)
@@ -142,27 +142,27 @@ void processMessage(RawMessage msg, Context& ctx)
     return ret;
 }
 ```
-Even when classes A, B and C are empty, their size is one byte by definition. So, *make_unique* will have to request such memory to the heap _each time a new packet arrives_.
+Even when classes A, B and C are empty, their sizes are one byte by definition. So, *make_unique* will have to request such memory to the heap _each time a new packet arrives_.
 
-When can skip this problem easily by using preallocated instances:
+We could skip this problem easily by using preallocated instances:
 
 
 ``` cpp
 Parser* make_parser(MessageType type)
 {
-    static std::vector<Parser> parsers{ A{}, B{}, C{} };
+    static auto parsers = std::make_tuple(A{}, B{}, C{});
 
     switch( type ) {
-        case 'A': return &parsers[0];
-        case 'B': return &parsers[1];
-        case 'C': return &parsers[2];
+        case 'A': return &std::get<0>( parsers );
+        case 'B': return &std::get<1>( parsers );
+        case 'C': return &std::get<2>( parsers );
         default: return nullptr;
     }
 }
 ```
-Unfortunatelly, that only avoid heap requests but no virtual calls (In fact, another considerations might arise, but let them out of this discussion to keep focus in the main problem).
+Unfortunatelly, that only avoids heap requests but no virtual calls (In fact, another considerations might arise, but let them out of this discussion to keep focus in the main problem).
 
-But we should consider how straightforward is to parse new future formats:
+Anyhow, we should consider how straightforward would be, thanks to our design approach, to parse new future formats:
 
 ``` cpp
 class D : public Parser
@@ -187,19 +187,19 @@ public:
 
 Parser* make_parser(MessageType type)
 {
-    static std::vector<Parser> parsers{ A{}, B{}, C{}, D{}, E{} };
+    static auto parsers = std::make_tuple(A{}, B{}, C{}, D{}, E{});
 
     switch( type ) {
-        case 'A': return &parsers[0];
-        case 'B': return &parsers[1];
-        case 'C': return &parsers[2];
-        case 'C': return &parsers[3];
-        case 'C': return &parsers[4];
+        case 'A': return &std::get<0>( parsers );
+        case 'B': return &std::get<1>( parsers );
+        case 'C': return &std::get<2>( parsers );
+        case 'D': return &std::get<3>( parsers );
+        case 'E': return &std::get<4>( parsers );
         default: return nullptr;
     }
 }
 ```
-How can we overcome the virtual call problem without missing out our convenient design structure? The answer is generic programing a variadic templates.
+How can we overcome the virtual call problem without missing out our convenient design structure? The answer is generic programing and variadic templates.
 
 We can generate an _if-else_ structure at compile time to be checked at runtime.
 
