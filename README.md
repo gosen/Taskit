@@ -17,15 +17,15 @@ One of the things that most naturally leads to both maintainable and scalable sy
 It should be easier to follow this approach by having a way to do it descriptively:
 
 ``` cpp
-void process(const std::string& data, std::string& normalizeData)
+void process(const std::string& data, std::string& normalizedData)
 {
     auto normalizer = make_taskSequence<CollapseTabsIntoSimpleSpaces, ConvertToLowCase, ScapeSymbols>();
-    normalizer(data, normalizeData);
+    normalizer(data, normalizedData);
 }
 ```
 The point is that by splitting your tasks in a well defined way, you will, sooner than later, realize that code reusing is pretty obvious and source code understandability is improved. So your test cases do, which leads to a better tested software at the end.
 
-To get all these things just depends on your design decisions. Believe it or not, they have nothing to do with your WoW organization and how many check-point meetings you attend.
+To get all these things just depends on your design decisions. Believe it or not, they have nothing to do with your WoW setup and how many check-point meetings you attend.
 
 ### Target
 
@@ -264,7 +264,7 @@ public:
     }
 };
 
-Parser make_parser(MessageType type)
+auto make_parser(MessageType type)
 {
     using namespace taskit;
     return make_Task( type,
@@ -297,7 +297,7 @@ Usage
 You can define task selectors...
 
 ``` cpp
-Parser make_parser(MessageType type)
+auto make_parser(MessageType type)
 {
     using namespace taskit;
     return make_Task( type,
@@ -343,7 +343,7 @@ public:
     }
 };
 
-Parser make_parser(MessageType type)
+auto make_parser(MessageType type)
 {
     auto e = [](RawMessage msg, Context& ctx)
     {
@@ -368,13 +368,14 @@ As tasks are actually functors, they can be used into packed_task object too:
 
 
 ``` cpp
-    auto parser = taskit::make_Task( parser_selector,
-                                     taskit::make_TaskType<char, 'A'>( std::move( a ) ),
-                                     taskit::make_TaskType<char, 'B'>( B{} ),
-                                     taskit::make_TaskType<char, 'C', C>(),
-                                     taskit::make_TaskType<char, 'D'>( std::move( d ) ),
-                                     taskit::make_TaskType<char, 'E'>( std::move( e ) )
-                                   );
+    using namespace taskit;
+    auto parser = make_Task( parser_selector,
+                             make_TaskType<char, 'A'>( std::move( a ) ),
+                             make_TaskType<char, 'B'>( B{} ),
+                             make_TaskType<char, 'C', C>(),
+                             make_TaskType<char, 'D'>( std::move( d ) ),
+                             make_TaskType<char, 'E'>( std::move( e ) )
+                           );
 
     Ctx ctx;
     std::packaged_task<int(RawMessage, Ctx&)> task( std::bind(parser, msg, std::ref(ctx)) );
