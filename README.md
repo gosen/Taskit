@@ -142,7 +142,7 @@ void processMessage(RawMessage msg, Context& ctx)
     return ret;
 }
 ```
-Even when classes A, B and C are empty, their sizes are pointer size (vtable pointer). So, *make_unique* will have to request such amount of memory to the heap _each time a new packet arrives_.
+Even when A, B and C are empty classes they need room for a pointer to vtable . So, *make_unique* will have to request such amount of memory to the heap _each time a new packet arrives_.
 
 We could skip this problem easily by using preallocated instances:
 
