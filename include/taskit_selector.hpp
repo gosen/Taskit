@@ -6,34 +6,34 @@
 namespace taskit {
 
 template<typename Head, typename... Tails>
-struct CRTPSelector : protected CRTPSelector<Tails...>, protected FunctionHolder<Head>
+struct ElseTaskSelector : protected ElseTaskSelector<Tails...>, protected FunctionHolder<Head>
 {
 protected:
 
     using task_t = typename Head::type;
 
-    constexpr CRTPSelector(task_t type, Head head, Tails... tails)
-        : CRTPSelector<Tails...>(type, tails...)
+    constexpr ElseTaskSelector(task_t type, Head head, Tails... tails)
+        : ElseTaskSelector<Tails...>(type, tails...)
         , FunctionHolder<Head>( head.getFunctorRef() )
     {}
 
     template<typename... Args>
     constexpr auto operator()(Args&&... args) const
     {
-        return CRTPSelector<Tails...>::type() == Head::value() ?
+        return ElseTaskSelector<Tails...>::type() == Head::value() ?
             this->FunctionHolder<Head>::exe( std::forward<Args>(args)... ) :
-            CRTPSelector<Tails...>::operator()( std::forward<Args>(args)... );
+            ElseTaskSelector<Tails...>::operator()( std::forward<Args>(args)... );
     }
 };
 
 template<typename Tail>
-struct CRTPSelector<Tail> : protected FunctionHolder<Tail>
+struct ElseTaskSelector<Tail> : protected FunctionHolder<Tail>
 {
     using task_t = typename Tail::type;
 
 protected:
 
-    constexpr CRTPSelector(task_t type, Tail tail)
+    constexpr ElseTaskSelector(task_t type, Tail tail)
         : FunctionHolder<Tail>( tail.getFunctorRef() )
         , type_( type )
     {}
@@ -58,7 +58,7 @@ private:
 };
 
 template<typename... TaskList>
-class Task : private CRTPSelector<TaskList...>
+class Task : private ElseTaskSelector<TaskList...>
 {
 public:
 
@@ -71,13 +71,13 @@ public:
     template<typename... Args>
     constexpr auto operator()(Args&&... args) const
     {
-       return CRTPSelector<TaskList...>::operator()( std::forward<Args>(args)... );
+       return ElseTaskSelector<TaskList...>::operator()( std::forward<Args>(args)... );
     }
 
     template<typename T>
     auto& select(T&& type)
     {
-        CRTPSelector<TaskList...>::select( std::forward<T>( type ) );
+        ElseTaskSelector<TaskList...>::select( std::forward<T>( type ) );
         return *this;
     }
 
@@ -85,7 +85,7 @@ private:
 
     template<typename T>
     constexpr Task(T type, TaskList&&... taskList)
-        : CRTPSelector<TaskList...>(type, std::forward<TaskList>(taskList)...)
+        : ElseTaskSelector<TaskList...>(type, std::forward<TaskList>(taskList)...)
     {}
 };
 

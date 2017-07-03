@@ -6,12 +6,12 @@
 namespace taskit {
 
 template<typename Head, typename... Tails>
-struct CRTPSequence : protected CRTPSequence<Tails...>, protected FunctionHolder<Head>
+struct NextTaskSequence : protected NextTaskSequence<Tails...>, protected FunctionHolder<Head>
 {
 protected:
 
-    constexpr CRTPSequence(Head head, Tails... tails)
-        : CRTPSequence<Tails...>( tails... )
+    constexpr NextTaskSequence(Head head, Tails... tails)
+        : NextTaskSequence<Tails...>( tails... )
         , FunctionHolder<Head>( head.getFunctorRef() )
     {}
 
@@ -19,16 +19,16 @@ protected:
     constexpr auto operator()(Args&&... args) const
     {
         this->FunctionHolder<Head>::exe( std::forward<Args>(args)... );
-        return CRTPSequence<Tails...>::operator()( std::forward<Args>(args)... );
+        return NextTaskSequence<Tails...>::operator()( std::forward<Args>(args)... );
     }
 };
 
 template<typename Tail>
-struct CRTPSequence<Tail> : protected FunctionHolder<Tail>
+struct NextTaskSequence<Tail> : protected FunctionHolder<Tail>
 {
 protected:
 
-    constexpr CRTPSequence(Tail tail)
+    constexpr NextTaskSequence(Tail tail)
         : FunctionHolder<Tail>( tail.getFunctorRef() )
     {}
 
@@ -40,7 +40,7 @@ protected:
 };
 
 template<typename... TaskList>
-class TaskSequence : private CRTPSequence<TaskList...>
+class TaskSequence : private NextTaskSequence<TaskList...>
 {
 public:
 
@@ -52,13 +52,13 @@ public:
     template<typename... Args>
     constexpr auto operator()(Args&&... args) const
     {
-       return CRTPSequence<TaskList...>::operator()( std::forward<Args>(args)... );
+       return NextTaskSequence<TaskList...>::operator()( std::forward<Args>(args)... );
     }
 
 private:
 
     constexpr TaskSequence(TaskList&&... taskList)
-        : CRTPSequence<TaskList...>(std::forward<TaskList>(taskList)...)
+        : NextTaskSequence<TaskList...>(std::forward<TaskList>(taskList)...)
     {}
 };
 
