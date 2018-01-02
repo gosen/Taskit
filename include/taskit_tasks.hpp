@@ -111,6 +111,30 @@ constexpr auto make_TaskType(Args&&... args)
     return make_TaskType<T, val, Func>( Func( std::forward<Args>(args)... ) );
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if __cplusplus >= 201703L
+
+template<auto val, class Func>
+constexpr auto make_TaskType()
+{
+    return make_TaskType<decltype(val), val, Func>();
+}
+
+template<auto val, class Func>
+constexpr auto make_TaskType(Func&& func)
+{
+	return make_TaskType<decltype(val), val, Func>( std::forward<Func>(func) );
+}
+
+template<auto val, class Func, typename... Args>
+constexpr auto make_TaskType(Args&&... args)
+{
+    return make_TaskType<decltype(val), val, Func>( Func( std::forward<Args>(args)... ) );
+}
+
+#endif
+
 } // taskit namespace
 
 #endif // __TASKIT_TASKS_H__

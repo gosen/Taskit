@@ -78,11 +78,19 @@ int main(int argc, char* argv[])
 
     auto parser = taskit::make_Task( parser_selector,
 #ifdef PASS_OBJECTS
+    #if __cplusplus >= 201703L
+                                       taskit::make_TaskType<'A', A>(),
+                                       taskit::make_TaskType<'B'>( B{} ),
+                                       taskit::make_TaskType<'C'>( std::move( c ) ),
+                                       taskit::make_TaskType<'d'>( std::move( d ) ),
+                                       taskit::make_TaskType<'e'>( std::move( e ) )
+    #else
                                        taskit::make_TaskType<char, 'A', A>(),
                                        taskit::make_TaskType<char, 'B'>( B{} ),
                                        taskit::make_TaskType<char, 'C'>( std::move( c ) ),
                                        taskit::make_TaskType<char, 'd'>( std::move( d ) ),
                                        taskit::make_TaskType<char, 'e'>( std::move( e ) )
+    #endif
 #else
                                        taskit::make_TaskType<char, 'A', A>(),
                                        taskit::make_TaskType<char, 'B', B>(),
@@ -96,5 +104,6 @@ int main(int argc, char* argv[])
 
     std::cout << "'" << ret << "' was inspected: " << ctx << std::endl;
 
+    std::cout << "C++ standard VERSION: " << __cplusplus << std::endl;
     return 0;
 }

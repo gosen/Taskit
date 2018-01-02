@@ -147,12 +147,21 @@ BOOST_AUTO_TEST_CASE( simple_selector_test )
     {
         cout << "Create parser " << parser_selector << "..." << endl;
         auto parser = taskit::make_Task( parser_selector,
+#if __cplusplus >= 201703L
+                                           taskit::make_TaskType<'A'>( std::move( a ) ),
+                                           taskit::make_TaskType<'B'>( B{} ),
+                                           taskit::make_TaskType<'C', C>(),
+                                           taskit::make_TaskType<'d'>( std::move( d ) ),
+                                           taskit::make_TaskType<'e'>( std::move( e ) ),
+                                           taskit::make_TaskType<'P', P>( 4, "PpPpPp"s )
+#else
                                            taskit::make_TaskType<char, 'A'>( std::move( a ) ),
                                            taskit::make_TaskType<char, 'B'>( B{} ),
                                            taskit::make_TaskType<char, 'C', C>(),
                                            taskit::make_TaskType<char, 'd'>( std::move( d ) ),
                                            taskit::make_TaskType<char, 'e'>( std::move( e ) ),
                                            taskit::make_TaskType<char, 'P', P>( 4, "PpPpPp"s )
+#endif
                                          );
 
         Ctx ctx;
@@ -187,11 +196,19 @@ BOOST_AUTO_TEST_CASE( packedTask_test )
     {
         std::cout << "Create parser " << parser_selector << "..." << std::endl;
         auto parser = taskit::make_Task( parser_selector,
+#if __cplusplus >= 201703L
+                                           taskit::make_TaskType<'A'>( std::move( a ) ),
+                                           taskit::make_TaskType<'B'>( B{} ),
+                                           taskit::make_TaskType<'C', C>(),
+                                           taskit::make_TaskType<'d'>( std::move( d ) ),
+                                           taskit::make_TaskType<'e'>( std::move( e ) )
+#else
                                            taskit::make_TaskType<char, 'A'>( std::move( a ) ),
                                            taskit::make_TaskType<char, 'B'>( B{} ),
                                            taskit::make_TaskType<char, 'C', C>(),
                                            taskit::make_TaskType<char, 'd'>( std::move( d ) ),
                                            taskit::make_TaskType<char, 'e'>( std::move( e ) )
+#endif
                                          );
 
         Ctx ctx;

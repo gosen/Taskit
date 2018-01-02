@@ -6,7 +6,7 @@ APP=taskit
 
 # Compiler
 CC=g++
-CXXFLAGS=-Wall -std=gnu++14
+CXXFLAGS=-Wall -std=gnu++1z
 DEFINES=
 
 # Includes
