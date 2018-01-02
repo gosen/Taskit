@@ -12,6 +12,7 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <algorithm>
 
 class Ctx
 {
@@ -246,17 +247,24 @@ BOOST_AUTO_TEST_CASE( dictionary_test )
         word_locator(lookup, dict);
     }
 
-    std::stringstream result;
+    vector<string> vec_result;
     for( const auto& p : dict )
     {
         for( const auto& s : p.second )
         {
-            result << s << " ";
+            vec_result.push_back( s );
         }
     }
 
+    sort(vec_result.begin(), vec_result.end());
+
+    stringstream result;
+    for( const auto& s : vec_result )
+    {
+       result << s << " ";
+    }
     cout << result.str() << endl;
-    BOOST_CHECK( result.str() == "Goʹshen you you the the the " );
+    BOOST_CHECK( result.str() == "Goʹshen the the the you you ");
 }
 
 BOOST_AUTO_TEST_CASE( generate_tasks_before_selected_test )
@@ -289,17 +297,24 @@ BOOST_AUTO_TEST_CASE( generate_tasks_before_selected_test )
         word_locator(lookup, dict);
     }
 
-    std::stringstream result;
+    vector<string> vec_result;
     for( const auto& p : dict )
     {
         for( const auto& s : p.second )
         {
-            result << s << " ";
+            vec_result.push_back( s );
         }
     }
 
+    sort(vec_result.begin(), vec_result.end());
+
+    stringstream result;
+    for( const auto& s : vec_result )
+    {
+       result << s << " ";
+    }
     cout << result.str() << endl;
-    BOOST_CHECK( result.str() == "Goʹshen you you the the the " );
+    BOOST_CHECK( result.str() == "Goʹshen the the the you you ");
 }
 
 BOOST_AUTO_TEST_CASE( tasks_sizes_test )
