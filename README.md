@@ -294,7 +294,7 @@ You also need boost_unit_test_framework library to run UT.
 Usage
 -----
 
-You can define task selectors...
+You can define task selectors for C++14 compliant compiler...
 
 ``` cpp
 auto make_parser(MessageType type)
@@ -307,6 +307,21 @@ auto make_parser(MessageType type)
                       make_TaskType<char, 'D', D>(),
                       make_TaskType<char, 'E', E>(),
                       make_TaskType<char, '0', Default>());
+}
+```
+... or for C++17 compliant compiler...
+
+``` cpp
+auto make_parser(MessageType type)
+{
+    using namespace taskit;
+    return make_Task( type,
+                      make_TaskType<'A', A>(),
+                      make_TaskType<'B', B>(),
+                      make_TaskType<'C', C>(),
+                      make_TaskType<'D', D>(),
+                      make_TaskType<'E', E>(),
+                      make_TaskType<'0', Default>());
 }
 ```
 ... and task sequences:
