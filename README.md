@@ -287,7 +287,7 @@ And that's the idea ;-)
 Requirements
 ------------
 
-This library relies heavily on function return type deduction. Any C++14 compliant compiler is fine.
+This library relies heavily on function return type deduction. Any C++14 compliant compiler is fine. Just change _CXXFLAGS_ to "-std=gnu++14" flag in main Makefile, as to current value is set to "-std=gnu++1z" to get advantage of template<auto> C++17 feature.
 
 You also need boost_unit_test_framework library to run UT.
 
